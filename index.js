@@ -1,7 +1,8 @@
-const express = require('express');
+import { string, validate } from 'joi';
+import express, { json } from 'express';
 const app = express();
 
-app.use(express.json());
+app.use(json());
 
 const courses = [
     {id: 1, name: 'course1'},
@@ -20,10 +21,19 @@ app.get('/api/courses', (req, res)=>{
 app.get('/api/courses/:id', (req,res) => {
   const course =  courses.find(c => c.id === parseInt(req.params.id))
     if(!course)  res.status(404).send('The course with the given ID was not found')
-        res.status(200).send(course);
+        res.status(200).send(course);``
     })
 
 app.post('/api/courses', (req, res) => {
+    const schema = {
+        name: string().min(3).required()
+    }
+
+    const result = validate(req.body, schema)
+    if(result.error){
+        res.status(400).send(result.error)
+        return;
+    }
     const course = {
         id: courses.length + 1,
         name: req.body.name
